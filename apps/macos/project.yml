@@ -3,9 +3,9 @@ options:
   bundleIdPrefix: app.tasklistener
   deploymentTarget:
     macOS: "13.0"
-  # Pin compatibility so projects generated on newer Xcode (26+) still open on
-  # CI runners with Xcode 15 (macos-14 runner).
-  xcodeVersion: "15.0"
+  # Pin pbxproj objectVersion so projects generated on Xcode 26 still open on
+  # the macos-15 CI runner (Xcode 16). 60 = Xcode 15, broadly compatible.
+  objectVersion: 60
 
 settings:
   base:
