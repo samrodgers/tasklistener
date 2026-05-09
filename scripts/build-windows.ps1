@@ -45,9 +45,11 @@ $ProjectDir = Join-Path $Root "apps/windows/TaskListener"
 Push-Location $ProjectDir
 try {
     dotnet restore -r "win-$($Platform.ToLower())"
+    if ($LASTEXITCODE -ne 0) { throw "dotnet restore failed" }
     dotnet publish -c $Configuration -r "win-$($Platform.ToLower())" --self-contained true `
         -p:PublishSingleFile=false -p:PublishReadyToRun=true `
         -o "$Root/build/win-publish/$Platform"
+    if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
 } finally {
     Pop-Location
 }
