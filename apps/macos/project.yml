@@ -1,0 +1,56 @@
+name: TaskListener
+options:
+  bundleIdPrefix: app.tasklistener
+  deploymentTarget:
+    macOS: "13.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    ARCHS: "$(NATIVE_ARCH_ACTUAL)"
+    ONLY_ACTIVE_ARCH: YES
+
+packages:
+  TaskListenerCore:
+    path: TaskListenerCore
+
+targets:
+  TaskListener:
+    type: application
+    platform: macOS
+    sources:
+      - App
+    info:
+      path: App/Info.plist
+      properties:
+        LSUIElement: true
+        NSRemindersUsageDescription: TaskListener pushes captured tasks to your Reminders lists.
+        NSMicrophoneUsageDescription: TaskListener listens to your voice. Audio never leaves the device.
+    dependencies:
+      - package: TaskListenerCore
+      - sdk: EventKit.framework
+    settings:
+      base:
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
+        LIBRARY_SEARCH_PATHS: "$(inherited) $(SRCROOT)/../../target/release $(SRCROOT)/../../target/debug"
+        OTHER_LDFLAGS: "-ltasklistener"
+    preBuildScripts:
+      - name: Build and embed Rust dylib
+        script: |
+          set -e
+          cd "$SRCROOT/../.."
+          if [ "$CONFIGURATION" = "Release" ]; then
+            cargo build -p tasklistener-ffi --release
+            DYLIB="target/release/libtasklistener.dylib"
+          else
+            cargo build -p tasklistener-ffi
+            DYLIB="target/debug/libtasklistener.dylib"
+          fi
+          DEST="$BUILT_PRODUCTS_DIR/$FRAMEWORKS_FOLDER_PATH"
+          mkdir -p "$DEST"
+          cp "$DYLIB" "$DEST/"
+          install_name_tool -id "@rpath/libtasklistener.dylib" "$DEST/libtasklistener.dylib" || true
+          codesign --force --sign - "$DEST/libtasklistener.dylib" || true

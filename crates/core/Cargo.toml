@@ -1,0 +1,39 @@
+[package]
+name = "tasklistener-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lib]
+name = "tasklistener_core"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+rusqlite.workspace = true
+reqwest.workspace = true
+tracing.workspace = true
+url.workspace = true
+async-trait.workspace = true
+parking_lot.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "2"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.58", features = ["Win32_Foundation", "Win32_Security_Credentials"] }
+
+[features]
+default = []
+audio = []  # Real audio + ML pipeline (whisper.cpp, llama.cpp, Silero VAD, ECAPA). Stubbed when off.
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["full"] }
+mockito = "1"

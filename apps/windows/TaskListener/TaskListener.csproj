@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>TaskListener</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <UseWinUI>true</UseWinUI>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>None</WindowsPackageType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
+    <PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.4" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <!-- Copy the Rust dylib next to the binary. Adjust target if cross-compiling. -->
+  <Target Name="CopyRustDylib" BeforeTargets="Build">
+    <PropertyGroup>
+      <RustTarget Condition="'$(Platform)' == 'ARM64'">aarch64-pc-windows-msvc</RustTarget>
+      <RustTarget Condition="'$(Platform)' != 'ARM64'">x86_64-pc-windows-msvc</RustTarget>
+      <RustProfile Condition="'$(Configuration)' == 'Release'">release</RustProfile>
+      <RustProfile Condition="'$(Configuration)' != 'Release'">debug</RustProfile>
+      <RustDll>$(MSBuildThisFileDirectory)..\..\..\target\$(RustTarget)\$(RustProfile)\tasklistener.dll</RustDll>
+    </PropertyGroup>
+    <Copy Condition="Exists('$(RustDll)')"
+          SourceFiles="$(RustDll)"
+          DestinationFolder="$(OutDir)" />
+    <Warning Condition="!Exists('$(RustDll)')"
+             Text="tasklistener.dll not found at $(RustDll). Run: cargo build -p tasklistener-ffi --target $(RustTarget)" />
+  </Target>
+</Project>

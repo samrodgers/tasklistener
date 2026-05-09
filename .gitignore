@@ -1,0 +1,26 @@
+target/
+.DS_Store
+*.swp
+.claude/
+
+# Swift / Xcode (generated artifacts — produced by xcodegen + xcodebuild)
+apps/macos/**/.build/
+apps/macos/**/DerivedData/
+apps/macos/TaskListener.xcodeproj/
+apps/macos/App/Info.plist
+
+# Build outputs
+build/
+dist/
+
+# WinUI
+apps/windows/**/bin/
+apps/windows/**/obj/
+apps/windows/**/.vs/
+
+# Local
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+models/
